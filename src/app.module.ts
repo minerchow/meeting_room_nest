@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { Role } from './user/entities/role.entity';
 import { User } from './user/entities/user.entity';
 import { Permission } from './user/entities/permission.entity';
+import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -13,7 +14,7 @@ import { Permission } from './user/entities/permission.entity';
       host: "localhost",
       port: 3306,
       username: "root",
-      password: "123456",
+      password: "root",
       database: "meeting_room_booking_system",
       synchronize: true,
       logging: true,
@@ -25,6 +26,7 @@ import { Permission } from './user/entities/permission.entity';
       }
     }),
     UserModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
