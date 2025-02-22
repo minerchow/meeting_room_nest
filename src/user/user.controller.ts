@@ -1,12 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RegisterUserDto } from './dto/register-dto';
+import { RedisService } from 'src/redis/redis.service';
+import { EmailService } from 'src/email/email.service';
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {
+   
+  }
+  @Inject(EmailService)
+  private emailService: EmailService;
 
+  @Inject(RedisService)
+  private redisService: RedisService;
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -35,5 +43,19 @@ export class UserController {
   @Post('register')
   async register(@Body() registerUser: RegisterUserDto) {
     return await  this.userService.register(registerUser);
+  }
+  @Get('register-captcha')
+  async captcha(@Query('address') address: string) {
+      const code = Math.random().toString().slice(2,8);
+      console.log("code",code)
+      await this.redisService.set(`captcha_${address}`, code, 5 * 60);
+
+      await this.emailService.sendMail({
+        to: address,
+        subject: '注册验证码',
+        html: `<p>你的注册验证码是 ${code}</p>`
+      });
+      console.log("bb")
+      return '发送成功';
   }
 }
