@@ -8,8 +8,12 @@ import { User } from './user/entities/user.entity';
 import { Permission } from './user/entities/permission.entity';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
+import {  ConfigModule } from '@nestjs/config';
+import envConfig from '../config/env';
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true,envFilePath: [envConfig.path]}),
+    ConfigModule.forRoot({isGlobal: true}),
     TypeOrmModule.forRoot({
       type: "mysql",
       host: "localhost",
