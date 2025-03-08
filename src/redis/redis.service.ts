@@ -8,6 +8,7 @@ export class RedisService {
     private redisClient: RedisClientType;
 
     async get(key: string) {
+        console.log(await this.redisClient.get(key) )
         return await this.redisClient.get(key);
     }
 
