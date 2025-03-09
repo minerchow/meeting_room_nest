@@ -48,4 +48,49 @@ export class MeetingRoomService {
       totalCount
     }
   }
+
+  async create(meetingRoomDto: CreateMeetingRoomDto) {
+    const room = await this.repository.findOneBy({
+      name: meetingRoomDto.name
+    });
+
+    if (room) {
+      throw new BadRequestException('会议室名字已存在');
+    }
+
+    return await this.repository.save(meetingRoomDto);
+  }
+
+  async update(meetingRoomDto: UpdateMeetingRoomDto) {
+    const meetingRoom = await this.repository.findOneBy({
+      id: meetingRoomDto.id
+    })
+
+    if (!meetingRoom) {
+      throw new BadRequestException('会议室不存在');
+    }
+
+    meetingRoom.capacity = meetingRoomDto.capacity;
+    meetingRoom.location = meetingRoomDto.location;
+    meetingRoom.name = meetingRoomDto.name;
+
+    if (meetingRoomDto.description) {
+      meetingRoom.description = meetingRoomDto.description;
+    }
+    if (meetingRoomDto.equipment) {
+      meetingRoom.equipment = meetingRoomDto.equipment;
+    }
+
+    await this.repository.update({
+      id: meetingRoom.id
+    }, meetingRoom);
+    return 'success';
+  }
+  async findById(id: number) {
+    return this.repository.findOneBy({
+      id
+    });
+  }
+
+  
 }
