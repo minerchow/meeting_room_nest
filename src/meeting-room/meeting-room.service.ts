@@ -1,13 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateMeetingRoomDto } from './dto/create-meeting-room.dto';
 import { UpdateMeetingRoomDto } from './dto/update-meeting-room.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { MeetingRoom } from './entities/meeting-room.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class MeetingRoomService {
   @InjectRepository(MeetingRoom)
+  @InjectEntityManager()
+  private entityManager: EntityManager;
   private repository: Repository<MeetingRoom>;
 
   initData() {
@@ -92,5 +94,7 @@ export class MeetingRoomService {
     });
   }
 
+  async delete(id: number) {
   
+  }
 }

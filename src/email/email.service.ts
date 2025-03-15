@@ -8,12 +8,12 @@ export class EmailService {
     
     constructor() {
       this.transporter = createTransport({
-          host: "smtp.126.com",
+          host: "smtp.qq.com",
           port: 587,
           secure: false,
           auth: {
-              user: 'minerchow@126.com',
-              pass: 'KJyFkr46PKjXuD5M'
+              user: 'minerchow@qq.com',
+              pass: 'tkcjzydwvutubaja'
           },
       });
     }

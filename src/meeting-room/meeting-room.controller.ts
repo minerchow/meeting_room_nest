@@ -50,4 +50,6 @@ export class MeetingRoomController {
   async find(@Param('id') id: number) {
     return await this.meetingRoomService.findById(id);
   }
+
+ 
 }
