@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { InjectEntityManager } from '@nestjs/typeorm';
@@ -6,11 +6,18 @@ import { Between, EntityManager, LessThanOrEqual, Like, MoreThanOrEqual } from '
 import { User } from 'src/user/entities/user.entity';
 import { MeetingRoom } from 'src/meeting-room/entities/meeting-room.entity';
 import { Booking } from './entities/booking.entity';
+import { RedisService } from 'src/redis/redis.service';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class BookingService {
   @InjectEntityManager()
   private entityManager: EntityManager;
+  @Inject(RedisService)
+  private redisService: RedisService;
+
+  @Inject(EmailService)
+  private emailService: EmailService;
 
 
   async initData() {
@@ -138,10 +145,69 @@ export class BookingService {
       endTime: MoreThanOrEqual(booking.endTime)
     });
 
-    if(res) {
+    if (res) {
       throw new BadRequestException('该时间段已被预定');
     }
 
     await this.entityManager.save(Booking, booking);
+  }
+
+  async apply(id: number) {
+    await this.entityManager.update(Booking, {
+      id
+    }, {
+      status: '审批通过'
+    });
+    return 'success'
+  }
+
+  async reject(id: number) {
+    await this.entityManager.update(Booking, {
+      id
+    }, {
+      status: '审批驳回'
+    });
+    return 'success'
+  }
+
+  async unbind(id: number) {
+    await this.entityManager.update(Booking, {
+      id
+    }, {
+      status: '已解除'
+    });
+    return 'success'
+  }
+
+  async urge(id: number) {
+    const flag = await this.redisService.get('urge_' + id);
+
+    if (flag) {
+      return '半小时内只能催办一次，请耐心等待';
+    }
+
+    let email = await this.redisService.get('admin_email');
+    if (!email) {
+      const admin = await this.entityManager.findOne(User, {
+        select: {
+          email: true
+        },
+        where: {
+          isAdmin: true
+        }
+      });
+
+      email = admin.email
+      this.redisService.set('admin_email', admin.email);
+     }
+   
+    this.emailService.sendMail({
+      to: email,
+      subject: '预定申请催办提醒',
+      html: `id 为 ${id} 的预定申请正在等待审批`
+    });
+
+    this.redisService.set('urge_' + id, 1, 60 * 30);
+    
   }
 }
