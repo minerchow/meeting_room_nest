@@ -8,9 +8,8 @@ import { EntityManager, Repository } from 'typeorm';
 @Injectable()
 export class MeetingRoomService {
   @InjectRepository(MeetingRoom)
-  @InjectEntityManager()
-  private entityManager: EntityManager;
   private repository: Repository<MeetingRoom>;
+
 
   initData() {
     const room1 = new MeetingRoom();
