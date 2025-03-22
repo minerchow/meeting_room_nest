@@ -19,6 +19,7 @@ import { MeetingRoom } from './meeting-room/entities/meeting-room.entity';
 import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
 import { StatisticModule } from './statistic/statistic.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true,envFilePath: [envConfig.path]}),
@@ -43,7 +44,7 @@ import { StatisticModule } from './statistic/statistic.module';
           username: configService.get('mysql_server_username'),
           password: configService.get('mysql_server_password'),
           database: configService.get('mysql_server_database'),
-          synchronize: false,
+          synchronize: true,
           logging: false,
           entities: [
             User, Role, Permission , MeetingRoom , Booking
@@ -63,6 +64,7 @@ import { StatisticModule } from './statistic/statistic.module';
     MeetingRoomModule,
     BookingModule,
     StatisticModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService,
