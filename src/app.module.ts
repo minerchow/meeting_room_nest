@@ -20,6 +20,10 @@ import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
 import { StatisticModule } from './statistic/statistic.module';
 import { AuthModule } from './auth/auth.module';
+import { WinstonModule, utilities , WinstonLogger, WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import * as winston from 'winston';
+import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
+import 'winston-daily-rotate-file';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true,envFilePath: [envConfig.path]}),
@@ -36,7 +40,7 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService]
     }),
     TypeOrmModule.forRootAsync({
-      useFactory(configService: ConfigService) {
+      useFactory(configService: ConfigService,logger:WinstonLogger) {
         return {
           type: "mysql",
           host: configService.get('mysql_server_host'),
@@ -46,6 +50,7 @@ import { AuthModule } from './auth/auth.module';
           database: configService.get('mysql_server_database'),
           synchronize: true,
           logging: false,
+          logger:new CustomTypeOrmLogger(logger),
           entities: [
             User, Role, Permission , MeetingRoom , Booking
           ],
@@ -56,7 +61,30 @@ import { AuthModule } from './auth/auth.module';
           }
         }
       },
-      inject: [ConfigService]
+      inject: [ConfigService , WINSTON_MODULE_NEST_PROVIDER]
+    }),
+    WinstonModule.forRootAsync({
+      useFactory: () => ({
+        level: 'debug',
+        transports: [
+          new winston.transports.File({
+            filename: `${process.cwd()}/log`,
+          }),
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              utilities.format.nestLike(),
+            ),
+          }),
+          new winston.transports.DailyRotateFile({
+            level: 'debug',
+            dirname: 'daily-log',
+            filename: 'log-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxSize: '10k'
+          })
+        ],
+      })
     }),
     UserModule,
     RedisModule,
