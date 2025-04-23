@@ -23,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
 import { WinstonModule, utilities , WinstonLogger, WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as winston from 'winston';
 import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
+import { UploadModule } from './upload/upload.module';
 import 'winston-daily-rotate-file';
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import 'winston-daily-rotate-file';
     BookingModule,
     StatisticModule,
     AuthModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService,
