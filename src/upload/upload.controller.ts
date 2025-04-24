@@ -20,6 +20,7 @@ export class UploadController {
   }))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     console.log('Received file:', file);
+    debugger;
     if (!file) {
       console.error('No file received');
       return { error: 'No file received' };
