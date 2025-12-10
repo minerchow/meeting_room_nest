@@ -14,7 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { LoginGuard } from './login.guard';
 import { PermissionGuard } from './permission.guard';
 import { MeetingRoomModule } from './meeting-room/meeting-room.module';
-import envConfig from '../config/env';
+// import envConfig from '../config/env';
 import { MeetingRoom } from './meeting-room/entities/meeting-room.entity';
 import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
@@ -24,10 +24,25 @@ import { WinstonModule, utilities , WinstonLogger, WINSTON_MODULE_NEST_PROVIDER 
 import * as winston from 'winston';
 import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
 import { UploadModule } from './upload/upload.module';
+import * as path from 'path';
 import 'winston-daily-rotate-file';
+
+// 获取环境配置文件路径的函数
+function getEnvFilePath(): string {
+  const nodeEnv = process.env.NODE_ENV;
+  
+  if (nodeEnv === 'production') {
+    return path.join(__dirname, '.env');
+  } else if (nodeEnv === 'test') {
+    return path.join(__dirname, '.test.env');
+  } else {
+    // 默认使用开发环境配置
+    return path.join(__dirname, '.dev.env');
+  }
+}
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true,envFilePath: [envConfig.path]}),
+    ConfigModule.forRoot({ isGlobal: true,envFilePath: getEnvFilePath()}),
     JwtModule.registerAsync({
       global: true,
       useFactory(configService: ConfigService) {
