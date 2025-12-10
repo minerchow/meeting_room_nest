@@ -9,7 +9,6 @@ import { Booking } from 'src/booking/entities/booking.entity';
 
 config({ path: 'src/.env-migration' });
 
-// console.log(process.env);
 
 export default new DataSource({
     type: "mysql",
@@ -32,6 +31,6 @@ export default new DataSource({
     migrations: ['src/migrations/**.ts'],
     connectorPackage: 'mysql2',
     extra: {
-        authPlugin: 'sha256_password',
+       
     }
 });
